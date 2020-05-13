@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+
+import { createGlobalStyle } from 'styled-components'
+
+import Login from './screens/auth/login'
+import SignUp from './screens/auth/sign-up'
+import Dasboard from './screens/dasboard/dasboard'
+
+import Montserrat from './fonts/Montserrat/Montserrat-Regular.ttf'
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <GlobalStyle/>
+      <Router>
+        <Route path="/"  exact component={Login}/>
+        <Route path="/sign-up"  exact component={SignUp}/>
+        <Route path="/dashboard"  exact component={Dasboard}/>
+      </Router>
+    </React.Fragment>
+
   );
 }
+
+const GlobalStyle = createGlobalStyle`
+  html {
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    font-family: ${Montserrat};
+    /* background: linear-gradient(to bottom, #f05053, #e1eec3); */
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    color: #555
+  }
+
+  #root {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+`
+
 
 export default App;
