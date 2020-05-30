@@ -1,17 +1,15 @@
-import firebase from 'react-native-firebase'
-import { observable, action, computed } from 'mobx'
 
 
 export default class User {
 
   constructor(data = {}) {
 
-    this.id = data.id
+    this.countryID = data.countryID
+    this.first_name = data.fName
+    this.last_name = data.lName
     this.username = data.username
     this.password = data.password
-    this.is_admin = data.is_admin
-
-    console.log(this.id + this.username + this.password + " " + this.is_admin)
+    this.is_admin = data.rid === 1 ? true : false
   }
 
   nullIfUndefined(data) {

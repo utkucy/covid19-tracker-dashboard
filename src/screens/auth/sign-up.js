@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import backgroundImg from '../../images/covid_19.jpg'
 
 import SignUpForm from '../../components/Signup-Form/signup-form'
+import AlertDialog from '../../components/Alert/alert'
 
 
 class SignUp extends React.Component {
@@ -13,6 +14,7 @@ class SignUp extends React.Component {
       <Container>
         <ImageContainer></ImageContainer>
         <Content>
+          <AlertDialog forSignup={true}/>
           <SignUpForm />
         </Content>
       </Container>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -8,74 +8,87 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
+import { observer } from "mobx-react"
 import styled from 'styled-components'
+import Store from '../../store/index'
+import WorldInfo from '../WorldInfo/world-info'
+import moment from 'moment'
 
-const useStyles = makeStyles({
-  table: {
-    minWidth: 650,
-  },
-});
+import Searchbar from '../Searchbar/searchbar'
+import Graph from '../Graph/graph'
+import GraphDate from '../Graph-Date/graph-date'
 
-function createData(date, cases, death, tests, recovery, ic) {
-  return { date, cases, death, tests, recovery, ic };
-}
 
-const rows = [
-  createData('08/06/2020', 3200, 50, 32753, 3876, 1523),
-  createData('09/06/2020', 3200, 50, 32753, 3876, 1523),
-  createData('10/06/2020', 3200, 50, 32753, 3876, 1523),
-  createData('11/06/2020', 3200, 50, 32753, 3876, 1523),
-  createData('12/06/2020', 3200, 50, 32753, 3876, 1523),
-];
 
-const SimpleTable = () => {
-  const classes = useStyles();
+@observer
+class SimpleTable extends React.Component {
 
-  return (
-    <Container>
-      <CountryInfo>
-        <CountryNameText>Turkey</CountryNameText>
-        <CountryInfoText>Total Case:</CountryInfoText>
-        <CountryInfoText>Total Death:</CountryInfoText>
-        <CountryInfoText>Total Tests:</CountryInfoText>
-        <CountryInfoText>Total Recovery:</CountryInfoText>
-      </CountryInfo>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell align="right">Cases</TableCell>
-              <TableCell align="right">Death</TableCell>
-              <TableCell align="right">Tests</TableCell>
-              <TableCell align="right">Recovery</TableCell>
-              <TableCell align="right">Intensive Care</TableCell>
-
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.date}>
-                <TableCell component="th" scope="row">
-                  {row.date}
-                </TableCell>
-                <TableCell align="right">{row.cases}</TableCell>
-                <TableCell align="right">{row.death}</TableCell>
-                <TableCell align="right">{row.tests}</TableCell>
-                <TableCell align="right">{row.recovery}</TableCell>
-                <TableCell align="right">{row.ic}</TableCell>
+  render() {
+    return (
+      <Container>
+        <Searchbar />
+        <CountryNameContainer>
+          <CountryNameText>{Store.selectedCountry.value}</CountryNameText>
+        </CountryNameContainer>
+        <CountryInfo>
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Case" data={Store.stats.totalCase} textColor="rgb(249, 168, 37)"/>
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Death" data={Store.stats.totalDeceased} textColor="rgb(191, 54, 12)"/>
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Test" data={Store.stats.totalTest} textColor="rgb(66, 165, 245)" />
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Recovery" data={Store.stats.totalRecovered} textColor="rgb(0, 200, 83)"/>
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Intensive Care" data={Store.stats.totalICU} textColor="rgb(202, 190, 72)"/>
+          <WorldInfo background="rgb(234, 237, 254)" mainText="Total Intubated Patient" data={Store.stats.totalIntubated} textColor="rgb(175, 106, 45 )"/>
+        </CountryInfo>
+        <TableContainer component={Paper}>
+          <Table style={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell >Date</TableCell>
+                <TableCell align="right">Cases</TableCell>
+                <TableCell align="right">Death</TableCell>
+                <TableCell align="right">Tests</TableCell>
+                <TableCell align="right">Recovery</TableCell>
+                <TableCell align="right">Intensive Care</TableCell>
+                <TableCell align="right">Intubated Patient</TableCell>
+  
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
-  );
+            </TableHead>
+            <TableBody>
+              {Store.countryData
+              .sort((a,b) => moment(a.day_data) - moment(b.day_data))
+              .map((row, index) => (
+                <TableRow key={row.date}>
+                  <TableCell component="th" scope="row">
+                    {row.day_data}
+                  </TableCell>
+                  <TableCell align="right">{row.numCase}</TableCell>
+                  <TableCell align="right">{row.numDeceased}</TableCell>
+                  <TableCell align="right">{row.numTest}</TableCell>
+                  <TableCell align="right">{row.numRecovered}</TableCell>
+                  <TableCell align="right">{row.numICU}</TableCell>
+                  <TableCell align="right">{row.numIntubated}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <GraphDate country={true}/>
+        <Graph country={true}/>
+      </Container>
+    )
+  }
+  
 }
 
 const Container = styled.div`
-  width: 80%;
-  height: 100%;
+  width: 100%;
+  height: auto;
+  background-color: rgb(234,254,251);
+  /* background: #EEEEEE; */
+  padding: 25px;
+  padding-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `
 
 const CountryInfo = styled.div`
@@ -83,17 +96,20 @@ const CountryInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 30px;
   margin-bottom: 30px;
+`
+
+const CountryNameContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 
 const CountryNameText = styled.text`
   font-family: Montserrat-ExtraBold;
   font-size: 32px;
-`
-
-const CountryInfoText = styled.text`
-  font-family: Montserrat;
-  font-size: 20px;
 `
 
 export default SimpleTable

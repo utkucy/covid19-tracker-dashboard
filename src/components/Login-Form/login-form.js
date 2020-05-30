@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components'
 import {
   withStyles,
@@ -7,12 +7,9 @@ import {
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
+
 import { Link } from "react-router-dom"
-
-import { observer } from "mobx-react"
-import Store from '../../store/index'
-
-
+import Store from '../../store/index';
 
 const CssTextField = withStyles({
   root: {
@@ -44,90 +41,60 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ValidationTextField = withStyles({
-  root: {
-    '& input:valid + fieldset': {
-      borderColor: 'green',
-      borderWidth: 2,
-    },
-    '& input:invalid + fieldset': {
-      borderColor: 'red',
-      borderWidth: 2,
-    },
-    '& input:valid:focus + fieldset': {
-      borderLeftWidth: 6,
-      padding: '4px !important', // override inline-style
-    },
-  },
-})(TextField);
 
-const classes = useStyles();
+const LoginForm = () => {
 
+  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
 
+  const classes = useStyles();
 
-
-class LoginForm extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      
-    }
-    
+  const handleLogin = () => {
+    console.log(name + password)
+    Store.login(name, password)
   }
-
-  handleLogin()  {
-    console.log(Store.username + Store.password)
-    console.log("login pressed!")
-  }
-
-  render() {
-    return (
-      <Container>
-        <CustomText2>COVID-19 TRACKER SYSTEM</CustomText2>
-        <form className={classes.root} noValidate>
-          <CssTextField
+  
+  
+  return (
+    <Container>
+      <CustomText2>COVID-19 TRACKER SYSTEM</CustomText2>
+      <form className={classes.root} noValidate>
+        <CssTextField
+          fullWidth
+          className={classes.margin}
+          label="Username"
+          id="custom-css-standard-input"
+          autoComplete="off"
+          onChange={(name) => setName(name.target.value)}
+        />
+        <CssTextField
+          fullWidth
+          className={classes.margin}
+          label="Password"
+          id="custom-css-standard-input"
+          type="password"
+          onChange={(password) => setPassword(password.target.value)}
+        />
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            // href="/dashboard"
+            size="large"
             fullWidth
-            className={classes.margin}
-            label="Username"
-            id="custom-css-standard-input"
-            autoComplete="off"
-            ref={(name) => { Store.username = name }}
-          />
-          <CssTextField
-            fullWidth
-            className={classes.margin}
-            label="Password"
-            id="custom-css-standard-input"
-            type="password"
-            style={{ marginBottom: 30 }}
-            ref={(password) => { Store.password = password }}
-          />
-  
-          <Link style={{ color: 'rgb(66,82,175)', textDecoration: 'none' }} to="/dashboard">
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              href="#"
-              size="large"
-              fullWidth
-              style={{ marginTop:10 }}
-              onClick={this.handleLogin}
-              >
-              Login
-            </Button>
-          </Link>
-        </form>
-  
-        <TextContainer>
-            <CustomText>
-              Don't have an account? 
-              <Link style={{ color: 'rgb(66,82,175)', textDecoration: 'none' }} to="/sign-up"> Sign Up</Link>
-            </CustomText>
-          </TextContainer>
-      </Container>
-    )
-  }
-  
+            style={{ marginTop:30 }}
+            onClick={handleLogin}
+            >
+            Login
+          </Button>
+      </form>
+      <TextContainer >
+        <CustomText>
+          Don't have an account?  
+          <Link style={{ color: 'rgb(66,82,175)', textDecoration: 'none' }} to="/sign-up"> Sign up</Link>
+        </CustomText>
+      </TextContainer>
+    </Container>
+  )
 }
 
 
@@ -142,9 +109,7 @@ const Container = styled.div`
 `
 
 const TextContainer = styled.div`
-  display: flex;
-  width: 100%;
-  margin-top: 50px;
+  margin-top: 20px;
   align-content: center;
   justify-content: center;
 `
@@ -161,6 +126,7 @@ const CustomText2 = styled.h1`
   text-align: center;
   color: rgb(66,82,175);
 `
+
 
 
 export default LoginForm

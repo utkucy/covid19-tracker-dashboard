@@ -1,55 +1,57 @@
-import React, { Component, useState } from 'react'
+import React  from 'react'
 import ReactSearchBox from 'react-search-box'
 
+import { observer } from "mobx-react"
 import styled from 'styled-components'
 
-const data = [
-  {
-    key: 'john',
-    value: 'John Doe',
-  },
-  {
-    key: 'jane',
-    value: 'Jane Doe',
-  },
-  {
-    key: 'mary',
-    value: 'Mary Phillips',
-  },
-  {
-    key: 'robert',
-    value: 'Robert',
-  },
-  {
-    key: 'karius',
-    value: 'Karius',
-  },
-]
+import Store from '../../store/index'
+import AddCountry from './add-country'
 
+@observer
+class Searchbar extends React.Component {
 
-const Searchbar = () => {
+  handleSelect = (record) => {
+    console.log(record)
+    Store.showCountryInfo(record.key)
+  }
 
-  const [state] = useState(data)
+  render() {
+    return (
+      <Container>
+        <ReactSearchBox
+        placeholder="Search by country..."
+        // value="Doe"
+        style={{ display: 'block'  }}
+        data={Store.countries}
+        // callback={record => this.handleSelect(record)}
+        onSelect={record => this.handleSelect(record)}
+        inputBoxBorderColor="rgb(85, 85, 85)"
+      />
+      {!!Store.user.is_admin && 
+        <AddCountry/>
+      }
+      </Container>
+    )
+  }
+  
 
-  return (
-    <Container>
-      <ReactSearchBox
-      placeholder="Search by country..."
-      // value="Doe"
-      data={state}
-      callback={record => console.log(record)}
-      onSelect={record => console.log(record)}
-      inputBoxBorderColor="rgb(66,82,175)"
-    />
-    </Container>
-  )
+ 
 }
 
 const Container = styled.div`
-  width: 80%;
+  flex-direction: column;
+  width: 30%;
   height: auto;
-  margin-top: 50px;
-  margin-bottom: 100px;
+  padding: 30px;
+
+  margin: 50px;
+  border-radius: 25px;
+  /* margin-bottom: 5px; */
+  /* margin-bottom: 70px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(251, 235, 224);
 `
 
 

@@ -6,7 +6,7 @@ import { createGlobalStyle } from 'styled-components'
 
 import Login from './screens/auth/login'
 import SignUp from './screens/auth/sign-up'
-import Dasboard from './screens/dasboard/dasboard'
+import Dasboard from './screens/dashboard/dashboard'
 
 import Montserrat from './fonts/Montserrat/Montserrat-Regular.ttf'
 
@@ -19,6 +19,7 @@ function App() {
         <Route path="/"  exact component={Login}/>
         <Route path="/sign-up"  exact component={SignUp}/>
         <Route path="/dashboard"  exact component={Dasboard}/>
+        
       </Router>
     </React.Fragment>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState }from 'react';
 import styled from 'styled-components'
 import {
   withStyles,
@@ -8,6 +8,10 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+
+import Alert from '@material-ui/lab/Alert';
+
+import Store from '../../store/index';
 
 import { Link } from "react-router-dom"
 
@@ -41,37 +45,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ValidationTextField = withStyles({
-  root: {
-    '& input:valid + fieldset': {
-      borderColor: 'green',
-      borderWidth: 2,
-    },
-    '& input:invalid + fieldset': {
-      borderColor: 'red',
-      borderWidth: 2,
-    },
-    '& input:valid:focus + fieldset': {
-      borderLeftWidth: 6,
-      padding: '4px !important', // override inline-style
-    },
-  },
-})(TextField);
+const SignUpForm = () => {
 
-
-
-const LoginForm = () => {
+  const [first_name, setFirstName] = useState('')
+  const [last_name, setLastName] = useState('')
+  const [country_name, setCountryName] = useState('')
+  const [username, setUserName] = useState('')
+  const [password, setPassword] = useState('')
+  const [is_admin, setIsAdmin] = useState('')
+  
 
   const [state, setState] = React.useState({
     checkedA: true,
     checkedB: false,
   });
+  const [checked_admin, setCheckedAdmin] = React.useState(false)
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.checked })
+    setCheckedAdmin(!checked_admin)
+    setIsAdmin(event.target.checked)
   }
 
   const classes = useStyles();
+
+  const handleSignUp = () => {
+    console.log(username + password + first_name + last_name + is_admin)
+    Store.signup(username, password, first_name, last_name, is_admin, country_name)
+  }
   
 
   return (
@@ -81,10 +82,34 @@ const LoginForm = () => {
         <CssTextField
           fullWidth
           className={classes.margin}
+          label="First Name"
+          id="custom-css-standard-input"
+          autoComplete="off"
+          onChange={(first_name) => setFirstName(first_name.target.value)}
+        />
+        <CssTextField
+          fullWidth
+          className={classes.margin}
+          label="Last Name"
+          id="custom-css-standard-input"
+          autoComplete="off"
+          onChange={(last_name) => setLastName(last_name.target.value)}
+        />
+        <CssTextField
+          fullWidth
+          className={classes.margin}
+          label="Country Name"
+          id="custom-css-standard-input"
+          autoComplete="off"
+          onChange={(country_name) => setCountryName(country_name.target.value.toLowerCase())}
+        />
+        <CssTextField
+          fullWidth
+          className={classes.margin}
           label="Username"
           id="custom-css-standard-input"
           autoComplete="off"
-          helperText="Some important text"
+          onChange={(username) => setUserName(username.target.value)}
         />
         <CssTextField
           fullWidth
@@ -92,6 +117,7 @@ const LoginForm = () => {
           label="Password"
           id="custom-css-standard-input"
           type="password"
+          onChange={(password) => setPassword(password.target.value)}
         />
 
         <FormControlLabel
@@ -107,18 +133,20 @@ const LoginForm = () => {
           label="Admin User"
         />
       
-        <Link style={{ color: 'rgb(66,82,175)', textDecoration: 'none' }} to="/">
+        {/* <Link style={{ color: 'rgb(66,82,175)', textDecoration: 'none' }} to="/"> */}
           <Button 
             variant="outlined" 
             color="primary" 
-            href="#"
+            // href="#"
             size="large"
             fullWidth
             style={{ marginTop:10 }}
+            onClick={handleSignUp}
             >
             Sign Up
           </Button>
-        </Link>
+          {!!Store.signup_status && <Alert severity="success">Your account is created successfully.</Alert>}
+        {/* </Link> */}
       </form>
       <TextContainer >
         <CustomText>
@@ -162,6 +190,6 @@ const CustomText2 = styled.h1`
 
 
 
-export default LoginForm
+export default SignUpForm
 
 

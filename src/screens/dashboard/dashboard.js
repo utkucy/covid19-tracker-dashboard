@@ -1,66 +1,89 @@
-import React from './node_modules/react';
-import { Link } from "./node_modules/react-router-dom"
+import React from 'react';
+import { Link } from "react-router-dom"
 
-import styled from './node_modules/styled-components'
+import styled from 'styled-components'
+import { observer } from "mobx-react"
 
-import IconButton from './node_modules/@material-ui/core/IconButton';
-import ExitToAppRoundedIcon from './node_modules/@material-ui/icons/ExitToAppRounded';
-import { makeStyles } from './node_modules/@material-ui/core/styles';
-
-import SimpleTable from '../Simple-Table/simple-table';
-import Searchbar from '../Searchbar/searchbar'
+import IconButton from '@material-ui/core/IconButton';
+import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 
 
-const useStyles = makeStyles({
-  root: {
-    color: 'white',
-  },
-});
+import SimpleTable from '../../components/Simple-Table/simple-table'
+import AdminTable from '../../components/Admin-Table/admin-table'
+import WorldInfo from '../../components/WorldInfo/world-info'
+import Progress from '../../components/Progress/progress'
+import Graph from '../../components/Graph/graph'
+import GraphDate from '../../components/Graph-Date/graph-date'
 
+import Store from '../../store/index'
 
-const Dashboard = () => {
+@observer
+class Dashboard extends React.Component {
 
-  const classes = useStyles();
+  componentDidMount() {
+    Store.fetchData()
+  }
 
-  return(
-    <Container>
-      <NavBar>
-        <LeftBar>
-          <StyledNavText>COVID-19 TRACKER SYSTEM</StyledNavText>
-        </LeftBar>
-        <RightBar>
-          <StyledNavText>Utkucan Yıldırım</StyledNavText>
-          <Link  to="/">
-            <IconButton aria-label="logout">
-              <ExitToAppRoundedIcon classes={{ 
-                root: classes.root
-              }}fontSize="medium" color="primary" />
-            </IconButton>
-          </Link>
-        </RightBar>
-      </NavBar>
-      <Content>
-          <WorldInfoContainer>
-            <Row>
-              <WorldNameText>Globally</WorldNameText>
-              <WorldInfoText>Total Case</WorldInfoText>
-              <WorldInfoText>Total Death</WorldInfoText>
-              <WorldInfoText>Total Tests</WorldInfoText>
-              <WorldInfoText>Total Recovery</WorldInfoText>
-            </Row>
-            <Row>
-              <WorldNameText style={{ visibility: "hidden" }}>Globally</WorldNameText>
-              <WorldInfoText>4,234,654</WorldInfoText>
-              <WorldInfoText>244,632</WorldInfoText>
-              <WorldInfoText>10,032,872</WorldInfoText>
-              <WorldInfoText>2,321,123</WorldInfoText>
-            </Row>
-          </WorldInfoContainer>
-          <Searchbar style={{ marginBottom: 10 }}/>
-          <SimpleTable />
-      </Content>
-    </Container>
-  )
+  handleLogout() {
+    console.log("logout!!!")
+    Store.logout()
+    console.log(localStorage.getItem('username'))
+  }
+
+  render() {
+    if(Store.fetch_status === null)
+      return <Progress />
+
+    return(
+      <Container>
+        <NavBar>
+          <LeftBar>
+            <StyledNavText>COVID-19 TRACKER SYSTEM</StyledNavText>
+          </LeftBar>
+          <RightBar>
+            <StyledNavText>{Store.user.username}, {Store.user.first_name} {Store.user.last_name}</StyledNavText>
+            <Link to="/" onClick={() => this.handleLogout()}>
+              <IconButton aria-label="logout">
+                <LogoutIcon/>
+              </IconButton>
+            </Link>
+          </RightBar>
+        </NavBar>
+        <Content>
+          <World> 
+            <WorldInfoTextContainer>
+                <WorldInfoText>World Statistics</WorldInfoText>
+            </WorldInfoTextContainer>
+            <WorldStatisticContainer>
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Case" data={Store.global_stats.totalCase} textColor="rgb(249, 168, 37)"/>
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Death" data={Store.global_stats.totalDeceased} textColor="rgb(191, 54, 12)"/>
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Test" data={Store.global_stats.totalTest} textColor="rgb(66, 165, 245)" />
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Recovery" data={Store.global_stats.totalRecovered} textColor="rgb(0, 200, 83)"/>
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Intensive Care" data={Store.global_stats.totalICU} textColor="rgb(202, 190, 72)"/>
+                <WorldInfo background="rgb(234, 237, 254)" mainText="Total Intubated Patient" data={Store.global_stats.totalIntubated} textColor="rgb(175, 106, 45 )"/>
+            </WorldStatisticContainer>
+            <WorldInfoContainer>
+
+              <GraphDate global={true}/>
+              <WorldGraphContainer>
+                <Graph global={true}/>
+              </WorldGraphContainer>
+            </WorldInfoContainer>
+          </World>
+
+          {!!!Store.user.is_admin && 
+            <SimpleTable />
+          }
+
+          {!!Store.user.is_admin &&
+            <AdminTable/>
+          }
+          
+        </Content>
+      </Container>
+    )
+  }
+  
 }
 
 
@@ -69,32 +92,38 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+
 `
 
 const NavBar = styled.div`
   width: 100%;
-  height: 8%;
-  background: rgb(66,82,175);
+  height: 60px;
+  background-color: #EEEEEE;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid white;
 `
 
 const LeftBar = styled.div`
   width: auto;
+  height: 100%;
   display: flex;
   margin-left: 20px;
+  align-items: center;
 `
 
 const RightBar = styled.div`
   width: auto;
   display: flex;
+  height: 100%;
+  align-items: center;
 `
 
 const StyledNavText = styled.h3`
   font-size: 16px;
   text-align: center;
-  color: white;
+  color: black;
   font-family: Montserrat;
 `
 
@@ -107,33 +136,62 @@ const Content = styled.div`
   align-items: center;
 `
 
+const World = styled.div`
+
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(234, 237, 254);
+  /* border-radius: 20px; */
+  /* margin-top: 100px; */
+
+`
+
 const WorldInfoContainer = styled.div`
-  width: 80%;
+  width: 100%;
   height: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  margin-top: 50px;
   margin-bottom: 50px;
 `
 
-const Row = styled.div`
+const WorldInfoTextContainer = styled.div`
   width: 100%;
-  height: auto;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 10px;
+`
+
+const WorldInfoText = styled.text`
+  font-family: Montserrat-ExtraBold;
+  font-size: 32px;
+  
+`
+
+const WorldStatisticContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
 `
 
-const WorldNameText = styled.text`
-  font-family: Montserrat-ExtraBold;
-  font-size: 42px;
+const WorldGraphContainer = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
 `
 
-const WorldInfoText = styled.text`
-  font-family: Montserrat;
-  font-size: 20px;
+const LogoutIcon = styled(ExitToAppRoundedIcon)`
+  color: black;
 `
  
 export default Dashboard;
