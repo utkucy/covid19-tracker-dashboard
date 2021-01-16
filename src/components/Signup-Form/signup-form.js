@@ -14,6 +14,7 @@ import Alert from '@material-ui/lab/Alert';
 import Store from '../../store/index';
 
 import { Link } from "react-router-dom"
+import { observer } from 'mobx-react'
 
 const CssTextField = withStyles({
   root: {
@@ -45,7 +46,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignUpForm = () => {
+
+const SignUpForm = observer(() => {
 
   const [first_name, setFirstName] = useState('')
   const [last_name, setLastName] = useState('')
@@ -53,7 +55,6 @@ const SignUpForm = () => {
   const [username, setUserName] = useState('')
   const [password, setPassword] = useState('')
   const [is_admin, setIsAdmin] = useState('')
-  
 
   const [state, setState] = React.useState({
     checkedA: true,
@@ -156,7 +157,7 @@ const SignUpForm = () => {
       </TextContainer>
     </Container>
   )
-}
+})
 
 
 const Container = styled.div`

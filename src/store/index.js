@@ -9,7 +9,7 @@ import Stats from '../models/Stats/stats';
 
 
 
-
+//A mobX Store sends HTTP request to get/post/update/delete data from database and store it in JS variable if required.
 class Store {
 
   @observable user = null
@@ -30,6 +30,9 @@ class Store {
   @observable selectedCountryIndex
 
 
+  // This method recieve all the data which user enters to signin form. Then it checks 
+  //if any user is created with the username before or not. If user is created before, it won't send a post request to backend.
+  //if user is not creted before, it will send a post request to server.
   @action
   async signup (username, password, fName, lName, is_admin, cname) {
     const rid = is_admin ? 1 : 0
@@ -62,6 +65,8 @@ class Store {
     }
   }
 
+  //This method is called in signUp or when an admin adds a new country information.
+  // it will add the given countryname if it is not added to countrylist before.
   @action
   async addNewCountry(cname,adminAdded) {
     let id = -1      
@@ -83,16 +88,18 @@ class Store {
         console.log(post_response)
         console.log(post_response.data)
         this.is_country_created = null
+        if(adminAdded) {
+          await this.getAllCountries(adminAdded)
+        }
+        return post_response.data.cid
       } catch (error) {
         console.log(error)
       }
     }
 
-    if(adminAdded) {
-      await this.getAllCountries(adminAdded)
-    }
   }
-
+//This method changes the selectedCountryIndex according to country that displayed by user.
+//Then according to selectedCountryIndex, it will get all covid data of selected country.
   @action
   async showCountryInfo(cname) {
     this.countries.forEach((country, index) => {
@@ -102,6 +109,9 @@ class Store {
     this.getCovidDataOfSelectedCountry()
   }
 
+  // Only and admin user can add covid-data to backend. So the data provided by admin
+  // will be posted to related table and adds new data. After adding new data 
+  // method will call getCovidDataOfSelected country to update covid-data in related array list.
   @action
   async addCovidDataToCountry(newData) {
     newData.countryID = this.selectedCountry.countryID
@@ -129,6 +139,9 @@ class Store {
     }
   }
 
+  //This method is called when user tries to login. It sends a get request with the given username 
+  // since username ensures the uniqueness of the user. If there is a user with that username then it
+  // will check the password is correct for that user or not.
   @action
   async login (username, password) {
     try {
@@ -156,6 +169,10 @@ class Store {
     console.log(this.login_status)
   }
 
+  // All the data which is needed to displayed by user is fetched in this method.
+  // When user logs in, user will be directed to dashboard screen. When dashboard component
+  // mounts, then this method is called and fetches all the data. 
+  // (user, global stats, countries, covid data of selected country, graph global data, graph country data)
   @action
   async fetchData() {
     //USER
@@ -192,6 +209,9 @@ class Store {
   }
 
  
+  //This method will send a get request for getting all created countries.
+  //This countries will be displayed in a searchbox to user. When users click one of these
+  //countries it will set the selectedCountryIndex to that country and show that country's covid data.
   @action
   async getAllCountries(adminAdded) {
     try {
@@ -230,6 +250,9 @@ class Store {
     }
   }
 
+  //This method sends a get request with the selected country id to display selected country's covid-data.
+  // Also it will send get requests for country stats, global stats, global graph data, country graph data
+  // to update related array lists.
   @action
   async getCovidDataOfSelectedCountry() {
     if(this.countryInfo.length > 0)
@@ -267,6 +290,7 @@ class Store {
     await this.showGraphOfSelectedCountry()
   }
 
+  //This method sends a get request the get global stats which is automatically calculated with a trigger in backend.
   @action
   async getGlobalStats() {
     try {
@@ -277,6 +301,8 @@ class Store {
     }
   }
 
+  // If an admin user wants to delete covid data this method will be called.
+  // It sends a delete request with the oldData to server.
   @action
   async deleteCovidDataOfSelectedCountry(oldData) {
     try {
@@ -288,6 +314,8 @@ class Store {
     } 
   }
 
+  // If an admin user wants to update covid data this method will be called.
+  // It sends a put request with the new and old data to server.
   @action
   async updateCovidDataOfSelectedCountry(newData, oldData) {
     newData.countryID = this.selectedCountry.countryID
@@ -318,6 +346,9 @@ class Store {
     }
   }
 
+  //Since we get the all of the 7(date,test,case,death,icu,intubated, recovery) covid data with getCovidDataOfselectedCountry method 
+  // but we need to show to user 3 of them it will push that object values to another array so that we can display graph according to these
+  // 3 values. It also checks if the data is in the given date interval or not. Then it will push the new values to array and sums with the old values.
   @action
   showGraphOfSelectedCountry(start,end) {
     if(this.selectedCountryGraphInfo.length > 0)
@@ -378,6 +409,8 @@ class Store {
     console.log(toJS(this.selectedCountryGraphInfo))
   }
 
+  //This method will send a get request to get graph data by date (totalRecovered, totalCase, TotalDeath ).
+  // After getting a respond, it will push that data to related array list. It also checks if date is in the given interval or not.
   @action
   async getGlobalGraphInfo(start, end) {
     if(this.globalGraphInfo.length > 0)
@@ -447,7 +480,7 @@ class Store {
   }
 
   
-
+// It will reset the information for another login stage.
   @action
   async logout() {
     localStorage.clear()
@@ -456,6 +489,7 @@ class Store {
     this.fetch_status = null
     this.changeLoginStatus(null)
   }
+
 
   @action
   changeLoginStatus(status) {
@@ -467,11 +501,6 @@ class Store {
     this.signup_status = status
   }
 
-
-
-
-
-    
 
   @computed
   get selectedCountry() {
